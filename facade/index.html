@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+    <title>remote launch facade</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="stylesheet" type="text/css" href="/static/css/ratchet.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/ratchet-theme-ios.min.css" />
+    <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="/static/js/ratchet.min.js"></script>
+</head>
+<body>
+    <header class="bar bar-nav">
+        <h1 class="title">remote launch facade</h1>
+    </header>
+
+    <div class="content">
+        <div class="content-padded">
+            <button class="btn btn-block" onclick="javascript:window.open('/certificate.crt')">install certificate</button>
+            <button class="btn btn-primary btn-block" onclick="javascript:window.location='https://'+window.location.hostname">launch controller</button>
+        </div>
+    </div>
+</body>
+</html>
