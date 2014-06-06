@@ -1,7 +1,7 @@
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource
-from twisted.internet import reactor, ssl
+from twisted.internet import reactor, ssl, defer
 from twisted.python import log
 import sys, os, json
 
@@ -16,8 +16,11 @@ sslContext = ssl.DefaultOpenSSLContextFactory(
 class RelayActivator(Resource):
     def render_GET(self, request):
         request.setHeader("content-type", "application/json")
-        reactor.callLater(0, GPIO.output, RELAY_PIN, GPIO.HIGH)
-        reactor.callLater(1, GPIO.output, RELAY_PIN, GPIO.LOW)
+        try:
+            GPIO.output(RELAY_PIN, GPIO.HIGH)
+            reactor.callLater(1, GPIO.output, RELAY_PIN, GPIO.LOW)
+        except NameError:
+            pass
         return json.dumps({ 'success': True })
 
 

@@ -23,13 +23,13 @@
     }
     $(function() {
         $('#arm').bind('mousedown touchstart',function(e) {
+            if(armed) {
+                disarm();
+                return;
+            }
             clearTimeout(this.downTimer);
             this.downTimer = setTimeout(function() {
-                if(armed) {
-                    disarm();
-                } else {
-                    arm();
-                }
+                arm();
             }, 2000);
         }).bind('mouseup touchend', function(e) {
             clearTimeout(this.downTimer);
