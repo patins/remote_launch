@@ -1,17 +1,11 @@
 from twisted.web.server import Site
 from twisted.web.static import File
 from twisted.web.resource import Resource
-from twisted.internet import reactor, ssl, defer
+from twisted.internet import reactor
 from twisted.python import log
 import sys, os, json
 
-RELAY_PIN = 17
-
-SSL_ROOT = 'ssl'
-sslContext = ssl.DefaultOpenSSLContextFactory(
-    os.path.join(SSL_ROOT, 'key.pem'),
-    os.path.join(SSL_ROOT, 'certificate.crt'),
-)
+RELAY_PIN = 4
 
 class RelayActivator(Resource):
     def render_GET(self, request):
@@ -23,22 +17,12 @@ class RelayActivator(Resource):
             pass
         return json.dumps({ 'success': True })
 
-
-def create_static_child(file):
-    file.putChild('static', File('static'))
-
 if __name__ == '__main__':
     log.startLogging(sys.stdout)
 
-    facade = File('facade')
-    create_static_child(facade)
-    facade.putChild('certificate.crt', File(os.path.join(SSL_ROOT, 'certificate.crt')))
-    reactor.listenTCP(80, Site(facade))
-
-    control = File('control')
-    create_static_child(control)
+    control = File('static')
     control.putChild('fire', RelayActivator())
-    reactor.listenSSL(443, Site(control), contextFactory=sslContext,)
+    reactor.listenTCP(80, Site(control))
 
     try:
         import RPi.GPIO as GPIO
@@ -48,3 +32,8 @@ if __name__ == '__main__':
         log.err()
 
     reactor.run()
+
+    try:
+        GPIO.cleanup()
+    except NameError:
+        pass
