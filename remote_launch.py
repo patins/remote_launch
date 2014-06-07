@@ -12,7 +12,7 @@ class RelayActivator(Resource):
         request.setHeader("content-type", "application/json")
         try:
             GPIO.output(RELAY_PIN, GPIO.HIGH)
-            reactor.callLater(1, GPIO.output, RELAY_PIN, GPIO.LOW)
+            reactor.callLater(10, GPIO.output, RELAY_PIN, GPIO.LOW)
         except NameError:
             pass
         return json.dumps({ 'success': True })
