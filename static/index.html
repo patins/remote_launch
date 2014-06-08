@@ -10,7 +10,6 @@
     <link rel="stylesheet" type="text/css" href="/static/css/ratchet.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/ratchet-theme-ios.min.css" />
     <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="/static/js/ratchet.min.js"></script>
     <script type="text/javascript">
     var connected = true;
     function on_connected() {
@@ -24,7 +23,7 @@
         connected = false;
         disarm();
         $("#disconnected").removeClass("hidden");
-        $("#arm").attr('disabled', true)
+        $("#arm").attr('disabled', true);
     }
     function ping() {
         $.get('/ping', function(data) {
@@ -40,7 +39,7 @@
     }
     var armed = false;
     function arm() {
-        if(armed) return;
+        if(armed || !connected) return;
         armed = true;
         $('#arm').removeClass('btn-outlined');
         $('#fire').attr('disabled', false).removeClass('btn-outlined');
