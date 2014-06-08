@@ -1,25 +1,55 @@
 <!doctype html>
-<html>
+<html manifest="remote-launch.manifest">
 <head>
-    <title>remote launch facade</title>
+    <title>Remote Launch</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/remote-launch-512x512.png">
+    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/ratchet.min.css" />
     <link rel="stylesheet" type="text/css" href="/static/css/ratchet-theme-ios.min.css" />
     <script type="text/javascript" src="/static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="/static/js/ratchet.min.js"></script>
     <script type="text/javascript">
+    var connected = true;
+    function on_connected() {
+        if(connected) return;
+        connected = true;
+        $("#disconnected").addClass("hidden");
+        $("#arm").attr('disabled', false)
+    }
+    function on_disconnected() {
+        if(!connected) return;
+        connected = false;
+        disarm();
+        $("#disconnected").removeClass("hidden");
+        $("#arm").attr('disabled', true)
+    }
+    function ping() {
+        $.get('/ping', function(data) {
+            if(data != 'pong') {
+                on_disconnected();
+            } else {
+                on_connected();
+            }
+        }, "text").fail(function(e, e2, txt) {
+            on_disconnected();
+        });
+        setTimeout(ping, 1000);
+    }
     var armed = false;
     function arm() {
+        if(armed) return;
+        armed = true;
         $('#arm').removeClass('btn-outlined');
         $('#fire').attr('disabled', false).removeClass('btn-outlined');
-        armed = true;
     }
     function disarm() {
+        if(!armed) return;
+        armed = false;
         $('#arm').addClass('btn-outlined');
         $('#fire').attr('disabled', true).addClass('btn-outlined');
-        armed = false;
     }
     $(function() {
         $('#arm').bind('mousedown touchstart',function(e) {
@@ -41,13 +71,16 @@
             $('#fire').attr('disabled', true);
             $.get('/fire', function(data) {
                 if(data['success']) {
-                    alert('fired')
+                    $('#fired').fadeIn(300, function() {
+                        $('#fired').fadeOut(1000);
+                    });
                 }
             }, "json").fail(function(e, e2, txt) {
-                alert('firing failed: '+ txt)
+                alert('firing failed: ' + txt)
             });
             disarm();
         });
+        ping();
     });
     </script>
     <style type="text/css">
@@ -58,14 +91,18 @@
     </style>
 </head>
 <body>
+    <div id="fired" style="display:none; position: absolute;left: 0%;top: 0%;background-color: #DA3A39;width: 100%;height: 100%; z-index: 100;"></div>
     <header class="bar bar-nav">
-        <h1 class="title">remote launch control</h1>
+        <h1 class="title">Remote Launch Control</h1>
     </header>
 
     <div class="content">
         <div class="content-padded">
-            <button class="btn btn-block btn-negative btn-outlined" id="arm">arm</button>
-            <button class="btn btn-block btn-primary btn-outlined" disabled="disabled" id="fire">fire</button>
+            <div class="alert alert-warning hidden" id="disconnected" style="margin-bottom: 5px; text-align: center;">
+                <span class="glyphicon glyphicon-exclamation-sign" style="line-height: 12px;"></span> Cannon Connection Interrupted
+            </div>
+            <button class="btn btn-block btn-negative btn-outlined" id="arm">Arm</button>
+            <button class="btn btn-block btn-primary btn-outlined" disabled="disabled" id="fire">Fire</button>
         </div>
     </div>
 </body>

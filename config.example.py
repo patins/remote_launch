@@ -1,0 +1,2 @@
+INTERFACE = ''
+RELAY_PIN = 4
